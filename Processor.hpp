@@ -51,7 +51,7 @@ namespace Hardware {
 	//To stop, set IP to STOP
 	struct Processor final {
 		memory_t memory;
-		WORD A = 0, B = 0, IP = 0, SP = CODE_SIZE;
+		WORD A = 0, B = 0, IP = 0, SP = STACK_OFFSET;
 		static constexpr WORD STOP = ~WORD{ 0 };
 		
 		Processor(memory_t&& code) : memory(std::move(code)) {}
