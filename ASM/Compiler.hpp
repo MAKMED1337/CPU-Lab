@@ -46,6 +46,7 @@ namespace ASM {
 		
 		
 		{"STOP", InstructionList{{ SET, Hardware::Processor::STOP, WRITE_IP }}},
+		{"PRINT", InstructionList{{ SWAP, SET, Hardware::IO_OFFSET, WRITE }}},
 	};
 	
 	class Compiler final {
