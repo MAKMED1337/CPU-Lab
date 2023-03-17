@@ -10,28 +10,28 @@ namespace Hardware {
 	
 	enum class Instruction : WORD {
 		READ,                        // A <- mem[A]
-		WRITE,                        // mem[A] <- B
+		WRITE,                       // mem[A] <- B
 		SWAP,                        // A <-> B
-		SET,                        // A <- mem[IP + 1], IP = IP + 2
+		SET,                         // A <- mem[IP + 1], IP = IP + 2
 		
-		JUMP_ZERO,                    // if A == 0 then IP = argument
+		JUMP_ZERO,                   // if A == 0 then IP = argument
 		
-		READ_IP,                    // A <- IP + 1(next instruction address)
+		READ_IP,                     // A <- IP + 1(next instruction address)
 		WRITE_IP,                    // IP <- A
 		
-		READ_SP,                    // A <- SP
+		READ_SP,                     // A <- SP
 		WRITE_SP,                    // SP <- A
 		
-		ADD,                        // A += B
-		SUB,                        // A -= B
+		ADD,                         // A += B
+		SUB,                         // A -= B
 		MULT,                        // A *= B
-		DIV,                        // A /= B
+		DIV,                         // A /= B
 		
-		SHIFT_L,                    // A <<= B
-		SHIFT_R,                    // A >>= B
-		AND,                        // A &= B
-		OR,                            // A |= B
-		XOR,                        // A ^= B
+		SHIFT_L,                     // A <<= B
+		SHIFT_R,                     // A >>= B
+		AND,                         // A &= B
+		OR,                          // A |= B
+		XOR,                         // A ^= B
 	};
 	
 	constexpr std::array<std::string_view, 18> names = {{
