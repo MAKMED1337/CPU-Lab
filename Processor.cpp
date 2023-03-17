@@ -85,10 +85,27 @@ namespace Hardware {
 		return IP == STOP;
 	}
 	
-	void Processor::execute() {
-		while (!complete()) {
-			execute_step();
-			dump(std::cerr);
-		}
+	std::span<WORD> Processor::get_memory() {
+		return std::span<WORD>{ memory };
+	}
+	
+	std::span<WORD> Processor::get_code() {
+		return get_memory().subspan(CODE_OFFSET, CODE_SIZE);
+	}
+	
+	std::span<WORD> Processor::get_stack() {
+		return get_memory().subspan(STACK_OFFSET, STACK_SIZE);
+	}
+	
+	std::span<WORD> Processor::get_ram() {
+		return get_memory().subspan(RAM_OFFSET, RAM_SIZE);
+	}
+	
+	std::span<WORD> Processor::get_io() {
+		return get_memory().subspan(IO_OFFSET, IO_SIZE);
+	}
+	
+	std::span<WORD> Processor::get_display() {
+		return get_memory().subspan(DISPLAY_OFFSET, DISPLAY_SIZE);
 	}
 };

@@ -14,5 +14,8 @@ STOP
 	auto machine_code = compiler.compile();
 	
 	Hardware::Processor processor(std::move(machine_code));
-	processor.execute();
+	while (!processor.complete()) {
+		processor.execute_step();
+		processor.dump(std::cerr);
+	}
 }
