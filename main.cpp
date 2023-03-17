@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ASM_Compiler.hpp"
+#include "ASM/Compiler.hpp"
 #include "Processor.hpp"
 
 int main() {
@@ -11,9 +11,9 @@ ADD
 SET 0xFFFFFFFF
 WRITE_IP
 )code";
-	ASM_Compiler compiler(asm_code);
+	ASM::Compiler compiler(asm_code);
 	auto machine_code = compiler.compile();
 	
-	Processor processor(std::move(machine_code));
+	Hardware::Processor processor(std::move(machine_code));
 	processor.execute();
 }
