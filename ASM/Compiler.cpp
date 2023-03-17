@@ -93,6 +93,8 @@ namespace ASM {
 	
 	memory_t Compiler::compile() {
 		memory_t memory;
+		memory.fill(0);
+		
 		std::span<WORD> space = memory;
 		
 		while (true) {

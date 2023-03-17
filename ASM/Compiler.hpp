@@ -58,12 +58,10 @@ namespace ASM {
 		// only base 10 could be negative(contain `-` sign)
 		WORD read_argument();
 		
+		static int digit_from_hex(char c);
 		static WORD parse_int(std::string_view token, unsigned base = 10);
 		
 		static char escape_sequence(char c);
-		
-		static int digit_from_hex(char c);
-	
 	public:
 		Compiler(std::string_view code);
 		
