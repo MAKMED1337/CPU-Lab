@@ -8,8 +8,7 @@ SET 5
 SWAP
 SET 10
 ADD
-SET 0xFFFFFFFF
-WRITE_IP
+STOP
 )code";
 	ASM::Compiler compiler(asm_code);
 	auto machine_code = compiler.compile();
