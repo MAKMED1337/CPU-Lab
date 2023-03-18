@@ -1,19 +1,46 @@
 #include "Compiler.hpp"
-#include <algorithm>
-#include <cassert>
 #include <limits>
+#include <stdexcept>
+#include <fmt/format.h>
 
 namespace ASM {
 	Compiler::Compiler(std::string_view code) : m_code(code) {}
 	
-	void Compiler::skip_ws() {
+	bool Compiler::skip_ws() {
+		if (!std::isspace(m_code[0]))
+			return false;
+		
 		while (!m_code.empty() && std::isspace(m_code[0]))
 			m_code.remove_prefix(1);
+		return true;
 	}
 	
-	WORD Compiler::read_argument() {
-		ParseStream token = read_token();
-		assert(!token.empty()); //FIXME: throw error
+	bool Compiler::skip_comment() {
+		if(!m_code.test("#"))
+			return false;
+		
+		while (!m_code.empty() && !m_code.test("\n"))
+			m_code.remove_prefix(1);
+		return true;
+	}
+	
+	bool Compiler::skip() {
+		bool skipped = false;
+		while(skip_ws() || skip_comment())
+			skipped = true;
+		return skipped;
+	}
+	
+	WORD Compiler::parse_argument(ParseStream token) const {
+		if (token.empty())
+			throw std::invalid_argument("Expected argument");
+		
+		if (token.test(":")) {
+			auto it = labels.find(token);
+			if (it == labels.end())
+				return Hardware::Processor::STOP;
+			return it->second;
+		}
 		
 		if (token.test("'")) {
 			char c = token.test("\\") ? escape_sequence(token[0]) : token[0];
@@ -35,17 +62,19 @@ namespace ASM {
 	}
 	
 	WORD Compiler::parse_int(std::string_view token, unsigned int base) {
-		assert(token.size() > 0); //FIXME: throw error
+		if (token.empty())
+			throw std::invalid_argument("Expected number");
 		
 		WORD res = 0;
 		for(auto i : token) {
 			int d = digit_from_hex(i);
-			assert(d != -1); //FIXME: throw error
-			assert(d < base); //FIXME: throw error
+			
+			if (d >= base)
+				throw std::invalid_argument(fmt::format("Expected digit in base {}, got: `{}`", std::to_string(base), d));
 			
 			auto temp = Hardware::DWORD{ base } * res + d;
 			if (temp > std::numeric_limits<WORD>::max()) //overflow compile time check
-				assert(false); //FIXME: throw error
+				throw std::invalid_argument(fmt::format("Number {} - too large", token));
 			res = temp;
 		}
 		return res;
@@ -77,7 +106,7 @@ namespace ASM {
 			case 'v':
 				return '\v';
 			default:
-				assert(false); //FIXME: throw error
+				throw std::invalid_argument(fmt::format("Can't escape sequence `{}`", c));
 		}
 	}
 	
@@ -88,37 +117,68 @@ namespace ASM {
 			return c - 'a' + 10;
 		if ('A' <= c && c <= 'Z')
 			return c - 'A' + 10;
-		return -1; //FIXME: maybe throw exception
+		
+		throw std::invalid_argument(fmt::format("Expected digit, got: `{}`", c));
 	}
 	
-	memory_t Compiler::compile() {
-		memory_t memory;
-		memory.fill(0);
-		
-		std::span<WORD> space = memory;
+	void Compiler::preparse() {
+		WORD offset = 0;
 		
 		while (true) {
 			auto token = read_token();
 			if (token.empty())
 				break;
 			
-			auto it = keywords.find(token);
-			assert(it != keywords.end()); //FIXME: throw exception
+			if (token.test(":")) {
+				labels[std::string {token}] = offset;
+				continue;
+			}
+			
+			auto it = translation.find(token);
+			if (it == translation.end())
+				throw std::logic_error(fmt::format("Expected token, got: `{}`", token));
 			
 			auto const& instruction = it->second;
-			std::vector<WORD> args(instruction.args_count);
-			for(auto& i : args)
-				i = read_argument();
+			for(size_t i = 0; i < instruction.get_args_count(); ++i)
+				parse_argument(read_token());
+			offset += instruction.size();
+		}
+	}
+	
+	memory_t Compiler::compile() {
+		auto code = m_code;
+		preparse();
+		m_code = code;
+		
+		memory_t memory;
+		memory.fill(0);
+		std::span<WORD> as_span(memory);
+		
+		WORD offset = 0;
+		while (true) {
+			auto token = read_token();
+			if (token.empty())
+				break;
 			
-			auto count = instruction.push_instructions(std::move(args), space);
-			space = space.subspan(count);
+			if (token.test(":"))
+				continue;
+			
+			auto it = translation.find(token);
+			if (it == translation.end())
+				throw std::logic_error(fmt::format("Expected token, got: `{}`", token));
+			
+			auto const& instruction = it->second;
+			std::vector<WORD> args(instruction.get_args_count());
+			for(auto& i : args)
+				i = parse_argument(read_token());
+			offset += instruction.push_instructions(std::move(args), as_span.subspan(offset));
 		}
 		
 		return memory;
 	}
 	
-	std::string_view Compiler::read_token() {
-		skip_ws();
+	ParseStream Compiler::read_token() {
+		skip();
 		WORD i = 0;
 		while(i < m_code.size() && !std::isspace(m_code[i]))
 			++i;
@@ -127,4 +187,4 @@ namespace ASM {
 		m_code.remove_prefix(i);
 		return res;
 	}
-};
+}
