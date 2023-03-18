@@ -1,11 +1,9 @@
 #include "ParseStream.hpp"
-#include <cassert>
+#include <fmt/format.h>
 
 TokenException::TokenException(const std::string& expected, const std::string& got) :
-	msg("Expected: `" + expected + "`, but got `" + got + "`")
+	logic_error(fmt::format("Expected: `{}`, but got `{}`", expected, got))
 {}
-
-const char* TokenException::what() const noexcept { return msg.c_str(); }
 
 
 

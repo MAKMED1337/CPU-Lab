@@ -1,13 +1,11 @@
 #pragma once
 #include <string_view>
-#include <exception>
+#include <stdexcept>
 #include <string>
 
-class TokenException final : public std::exception {
-	std::string msg;
+class TokenException final : public std::logic_error {
 public:
 	TokenException(const std::string& expected, const std::string& got);
-	virtual const char* what() const noexcept override;
 };
 
 class ParseStream final : public std::string_view {
