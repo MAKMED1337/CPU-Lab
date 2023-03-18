@@ -1,15 +1,17 @@
 #include "Processor.hpp"
 #include <cassert>
 #include <iostream>
+#include <stdexcept>
+#include <fmt/format.h>
 
 namespace Hardware {
 	void Processor::execute_step() {
-		assert(!complete()); //FIXME: throw error
-		using
-		enum Instruction;
+		if (complete())
+			throw std::runtime_error("Can't continue execution, because already completed");
 		
-		auto command = memory[IP++];
-		switch (Instruction{ command }) {
+		auto instruction = memory[IP++];
+		using enum Instruction;
+		switch (Instruction{ instruction }) {
 			case READ:
 				A = memory[A];
 				break;
@@ -18,6 +20,9 @@ namespace Hardware {
 				break;
 			case SWAP:
 				std::swap(A, B);
+				break;
+			case SWAP_C:
+				std::swap(A, C);
 				break;
 			case SET:
 				A = memory[IP++];
@@ -71,14 +76,13 @@ namespace Hardware {
 				A ^= B;
 				break;
 			default:
-				assert(false); //FIXME: throw error
+				throw std::invalid_argument(fmt::format("Unknown instruction: {}", instruction));
 		}
 	}
 	
 	
 	void Processor::dump(std::ostream& os) const {
-		os << "A = " << A << " B = " << B << " IP = " << IP << "(" << (complete() ? "STOP" : names[memory[IP]])
-		   << ") SP = " << SP << "\n";
+		os << fmt::format("IP = {}({}) SP = {} A = {} B = {} C = {}\n", IP, complete() ? "COMPLETE" : names[memory[IP]], SP, A, B, C);
 	}
 	
 	bool Processor::complete() const {

@@ -12,6 +12,7 @@ namespace Hardware {
 		READ,                        // A <- mem[A]
 		WRITE,                       // mem[A] <- B
 		SWAP,                        // A <-> B
+		SWAP_C,                      // A <-> C
 		SET,                         // A <- mem[IP + 1], IP = IP + 2
 		
 		JUMP_ZERO,                   // if A == 0 then IP = argument
@@ -34,9 +35,9 @@ namespace Hardware {
 		XOR,                         // A ^= B
 	};
 	
-	constexpr std::array<std::string_view, 18> names = {{
-	   "READ", "WRITE", "SWAP", "SET", "JUMP_ZERO", "READ_IP","WRITE_IP", "READ_SP", "WRITE_SP", "ADD", "SUB", "MULT",
-	   "DIV", "SHIFT_L", "SHIFT_R", "AND", "OR", "XOR"
+	constexpr std::array<std::string_view, 19> names = {{
+	   "READ", "WRITE", "SWAP", "SWAP_C", "SET", "JUMP_ZERO", "READ_IP","WRITE_IP", "READ_SP", "WRITE_SP", "ADD", "SUB",
+	   "MULT", "DIV", "SHIFT_L", "SHIFT_R", "AND", "OR", "XOR"
 	}};
 	
 	constexpr WORD CODE_SIZE = 8 * 1024 * 1024, STACK_SIZE = 8 * 1024 * 1024, RAM_SIZE = 8 * 1024 * 1024,
@@ -51,7 +52,7 @@ namespace Hardware {
 	//To stop, set IP to STOP
 	struct Processor final {
 		memory_t memory;
-		WORD A = 0, B = 0, IP = 0, SP = STACK_OFFSET;
+		WORD IP = 0, SP = STACK_OFFSET, A = 0, B = 0, C = 0;
 		static constexpr WORD STOP = ~WORD{ 0 };
 		
 		Processor(memory_t&& code) : memory(std::move(code)) {}
