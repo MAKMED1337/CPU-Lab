@@ -62,6 +62,7 @@ namespace Hardware {
 		bool complete() const;
 		
 		void dump(std::ostream& os) const;
+		void dump_stack(std::ostream& os) const;
 		
 		std::span<WORD> get_memory();
 		std::span<WORD> get_code();

@@ -85,6 +85,13 @@ namespace Hardware {
 		os << fmt::format("IP = {}({}) SP = {} A = {} B = {} C = {}\n", IP, complete() ? "COMPLETE" : names[memory[IP]], SP, A, B, C);
 	}
 	
+	void Processor::dump_stack(std::ostream& os) const {
+		os << "STACK:\n";
+		for(WORD i = SP - 1; i >= STACK_OFFSET; --i)
+			os << fmt::format("{}\n", memory[i]);
+		os << "\n";
+	}
+	
 	bool Processor::complete() const {
 		return IP == STOP;
 	}
