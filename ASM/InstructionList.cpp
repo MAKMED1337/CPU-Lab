@@ -1,12 +1,15 @@
 #include "InstructionList.hpp"
 #include <utility>
 #include <cassert>
+#include <stdexcept>
+#include <fmt/format.h>
 
 namespace ASM {
 	template<class> inline constexpr bool always_false_v = false;
 	
 	WORD InstructionList::push_instructions(std::vector<WORD>&& args, std::span<WORD> memory) const {
-		assert(args.size() == args_count); //FIXME: throw exception
+		if (args.size() != args_count)
+			throw std::invalid_argument(fmt::format("Expected exactly {} argument(s), but got {} argument(s)", args_count, args.size()));
 		
 		WORD ptr = 0;
 		for(auto instruction : m_instructions) {
