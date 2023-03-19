@@ -8,6 +8,7 @@ namespace Hardware {
 	using WORD = uint32_t;
 	using DWORD = uint64_t; //For overflow's checking, not used in processor
 	
+	//registers SP(STACK POINTER), IP(INSTRUCTION POINTER), A, B, C
 	enum class Instruction : WORD {
 		READ,                        // A <- mem[A]
 		WRITE,                       // mem[A] <- B
@@ -27,17 +28,23 @@ namespace Hardware {
 		SUB,                         // A -= B
 		MULT,                        // A *= B
 		DIV,                         // A /= B
+		MOD,                         // A %= B
 		
 		SHIFT_L,                     // A <<= B
 		SHIFT_R,                     // A >>= B
 		AND,                         // A &= B
 		OR,                          // A |= B
 		XOR,                         // A ^= B
+		NOT,                         // A = ~A
+		
+		LNOT,                        // A = !A
+		
+		DUMP,                        //dumps processor state
 	};
 	
-	constexpr std::array<std::string_view, 19> names = {{
+	constexpr std::array<std::string_view, 21> names = {{
 	   "READ", "WRITE", "SWAP", "SWAP_C", "SET", "JUMP_ZERO", "READ_IP","WRITE_IP", "READ_SP", "WRITE_SP", "ADD", "SUB",
-	   "MULT", "DIV", "SHIFT_L", "SHIFT_R", "AND", "OR", "XOR"
+	   "MULT", "DIV", "SHIFT_L", "SHIFT_R", "AND", "OR", "XOR", "NOT", "DUMP",
 	}};
 	
 	constexpr WORD CODE_SIZE = 8 * 1024 * 1024, STACK_SIZE = 8 * 1024 * 1024, RAM_SIZE = 8 * 1024 * 1024,
@@ -61,8 +68,9 @@ namespace Hardware {
 		
 		bool complete() const;
 		
-		void dump(std::ostream& os) const;
+		void dump_registers(std::ostream& os) const;
 		void dump_stack(std::ostream& os) const;
+		void dump(std::ostream& os) const;
 		
 		std::span<WORD> get_memory();
 		std::span<WORD> get_code();

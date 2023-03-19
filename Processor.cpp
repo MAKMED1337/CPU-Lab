@@ -59,6 +59,9 @@ namespace Hardware {
 			case DIV:
 				A /= B;
 				break;
+			case MOD:
+				A %= B;
+				break;
 			
 			case SHIFT_L:
 				A <<= B;
@@ -75,21 +78,37 @@ namespace Hardware {
 			case XOR:
 				A ^= B;
 				break;
+			case NOT:
+				A = ~A;
+				break;
+				
+			case LNOT:
+				A = !A;
+				break;
+				
+			case DUMP:
+				dump(std::cout);
+				break;
 			default:
 				throw std::invalid_argument(fmt::format("Unknown instruction: {}", instruction));
 		}
 	}
 	
 	
-	void Processor::dump(std::ostream& os) const {
+	void Processor::dump_registers(std::ostream& os) const {
 		os << fmt::format("IP = {}({}) SP = {} A = {} B = {} C = {}\n", IP, complete() ? "COMPLETE" : names[memory[IP]], SP, A, B, C);
 	}
 	
 	void Processor::dump_stack(std::ostream& os) const {
 		os << "STACK:\n";
-		for(WORD i = SP - 1; i >= STACK_OFFSET; --i)
+		for(WORD i = SP; i >= STACK_OFFSET; --i)
 			os << fmt::format("{}\n", memory[i]);
 		os << "\n";
+	}
+	
+	void Processor::dump(std::ostream& os) const {
+		dump_registers(os);
+		dump_stack(os);
 	}
 	
 	bool Processor::complete() const {
