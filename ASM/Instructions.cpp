@@ -27,9 +27,13 @@ namespace ASM {
 		INSTR(PUSH_STACK, { EXTEND_STACK, WRITE_STACK }) //A, C
 		INSTR(POP_STACK, { SAVE_B, SET, WORD{1}, SWAP, READ_SP, SUB, WRITE_SP, LOAD_B }) //A, C
 		
-		InstructionList call_without_ip {{ ADD, SWAP, INCREASE_STACK, WRITE_STACK, SET, Arg{0}, WRITE_IP }, 1};
-		INSTR(CALL, { SET, call_without_ip.size(), SWAP, READ_IP, call_without_ip }, 1) //side effect on B
+		INSTR(PREPARE_ARGS, { EXTEND_STACK }) //A, C
 		
-		INSTR(RET, { READ_STACK, SWAP, POP_STACK, SWAP, WRITE_IP })
+		InstructionList after {{ ADD, SWAP, SWAP_C, WRITE, SET, Arg{1}, SWAP, SET, Arg{0}, WRITE_IP }, 2};
+		INSTR(CALL, { SET, Arg{1}, SWAP, READ_SP, SUB, SWAP_C, SET, after.size(), SWAP, READ_IP, after }, 2) //A, B(args count), C
+		// on call register B would contain arguments count
+		// USAGE: CALL :func 3 # 3 - number of stack args
+		
+		INSTR(RET, { POP_STACK, SAVE_B, READ_SP, SWAP, SET, WORD{1}, ADD, READ, SWAP_BC, WRITE_IP }) //A, C
 	}
 }
