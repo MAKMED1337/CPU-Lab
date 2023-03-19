@@ -33,11 +33,15 @@ namespace ASM {
 		{"SUB", InstructionList{{ SUB }}},
 		{"MULT", InstructionList{{ MULT }}},
 		{"DIV", InstructionList{{ DIV }}},
+		{"MOD", InstructionList{{ MOD }}},
 		{"SHIFT_L", InstructionList{{ SHIFT_L }}},
 		{"SHIFT_R", InstructionList{{ SHIFT_R }}},
 		{"AND", InstructionList{{ AND }}},
 		{"OR", InstructionList{{ OR }}},
-		{"XOR", InstructionList{{ XOR }}}
+		{"XOR", InstructionList{{ XOR }}},
+		{"NOT", InstructionList{{ NOT }}},
+		{"LNOT", InstructionList{{ LNOT }}},
+		{"DUMP", InstructionList{{ DUMP }}},
 	};
 	
 	//init custom commands
