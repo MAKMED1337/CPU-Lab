@@ -7,13 +7,13 @@ int main() {
 	
 	constexpr std::string_view asm_code = R"code(
 PREPARE_ARGS
-SET -1
+SET 42069
 SWAP
 PUSH_STACK
 CALL :print_num 1
 STOP
 
-:print_num
+:print_num #NOTE: all numbers are unsigned, so -1 = 4294967295
 	READ_STACK
 	JUMP_NOT_ZERO :recall
 	SET '0'
@@ -63,7 +63,8 @@ STOP
 
 	POP_STACK
 	RET
-)code";
+)code"; //expected "42069"
+	
 	ASM::Compiler compiler(asm_code);
 	auto machine_code = compiler.compile();
 	
