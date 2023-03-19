@@ -19,7 +19,7 @@ namespace ASM {
 		WORD size() const;
 		
 		using constructor_type = std::variant<Instruction, WORD, Arg, InstructionList>;
-		InstructionList(std::vector<constructor_type> instructions = {}, size_t arguments_count = 0);
+		InstructionList(std::vector<constructor_type> const& instructions = {}, size_t arguments_count = 0);
 		
 		using argument_type = std::variant<WORD, Arg>;
 		InstructionList remap(std::vector<argument_type> const& args = {});

@@ -38,7 +38,7 @@ namespace ASM {
 		return args_count;
 	}
 	
-	InstructionList::InstructionList(std::vector<constructor_type> instructions, size_t arguments_count)
+	InstructionList::InstructionList(std::vector<constructor_type> const& instructions, size_t arguments_count)
 		: args_count(arguments_count) {
 		for (auto const& instruction : instructions) {
 			std::visit([&](auto const& i) {
