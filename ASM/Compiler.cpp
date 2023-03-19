@@ -38,7 +38,7 @@ namespace ASM {
 		if (token.test(":")) {
 			auto it = labels.find(token);
 			if (it == labels.end())
-				return Hardware::Processor::STOP;
+				throw std::invalid_argument(fmt::format("No such label as `:{}`", token));
 			return it->second;
 		}
 		
@@ -70,7 +70,7 @@ namespace ASM {
 			int d = digit_from_hex(i);
 			
 			if (d >= base)
-				throw std::invalid_argument(fmt::format("Expected digit in base {}, got: `{}`", std::to_string(base), d));
+				throw std::invalid_argument(fmt::format("Expected digit in base {}, got: '{}' = {}", std::to_string(base), i, d));
 			
 			auto temp = Hardware::DWORD{ base } * res + d;
 			if (temp > std::numeric_limits<WORD>::max()) //overflow compile time check
@@ -140,7 +140,7 @@ namespace ASM {
 			
 			auto const& instruction = it->second;
 			for(size_t i = 0; i < instruction.get_args_count(); ++i)
-				parse_argument(read_token());
+				read_token();
 			offset += instruction.size();
 		}
 	}
