@@ -10,8 +10,8 @@
 #include <utility>
 #include <vector>
 
-using Hardware::WORD, Hardware::Instruction, Hardware::memory_t;
 namespace ASM {
+	using Hardware::memory_t;
 	class Compiler final {
 		ParseStream m_code;
 		std::unordered_map<std::string, WORD, string_hash, std::equal_to<>> labels;

@@ -4,8 +4,10 @@
 #include <vector>
 #include <span>
 
-using Hardware::WORD, Hardware::Instruction;
 namespace ASM {
+	using Hardware::WORD;
+	using Instruction = Hardware::Processor::Instruction;
+	
 	struct Arg {
 		WORD ind;
 	};
