@@ -46,11 +46,15 @@ namespace Hardware {
 		IO_OFFSET = RAM_OFFSET + RAM_SIZE, DISPLAY_OFFSET = IO_OFFSET + IO_SIZE;
 	
 	using memory_t = std::array<WORD, MEMORY_SIZE>;
-
-	//To stop, set IP to STOP
+	
 	struct Processor final {
+		//memory
 		memory_t memory;
+		
+		//registers SP(STACK POINTER), IP(INSTRUCTION POINTER), A, B, C
 		WORD IP = 0, SP = STACK_OFFSET, A = 0, B = 0, C = 0;
+		
+		//To stop, set IP to STOP
 		static constexpr WORD STOP = ~WORD{ 0 };
 		
 		MAKE_INSTRUCTIONS(

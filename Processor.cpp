@@ -1,5 +1,4 @@
 #include "Processor.hpp"
-#include <cassert>
 #include <iostream>
 #include <stdexcept>
 #include <fmt/format.h>
