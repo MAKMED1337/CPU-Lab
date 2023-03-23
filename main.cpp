@@ -6,6 +6,7 @@ int main() {
 	ASM::init();
 	
 	constexpr std::string_view asm_code = R"code(
+HELLO
 PREPARE_ARGS
 SET 42069
 SWAP
@@ -63,8 +64,11 @@ STOP
 
 	POP_STACK
 	RET
-)code"; //expected "42069"
-	
+)code"; /*expected:
+HELLO
+42069
+*/
+
 	ASM::Compiler compiler(asm_code);
 	auto machine_code = compiler.compile();
 	

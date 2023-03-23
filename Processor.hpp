@@ -87,6 +87,8 @@ namespace Hardware {
 			LNOT, A = !A,                                 // A = !A
 			
 			DUMP, dump(std::cout),                        //dumps processor state
+			
+			HELLO, std::cout << "HELLO" << std::endl,     //Test command addition
 		)
 		
 		Processor(memory_t&& code) : memory(std::move(code)) {}

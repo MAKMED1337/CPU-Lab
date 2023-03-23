@@ -42,6 +42,7 @@ namespace ASM {
 		{"NOT", InstructionList{{ NOT }}},
 		{"LNOT", InstructionList{{ LNOT }}},
 		{"DUMP", InstructionList{{ DUMP }}},
+		{"HELLO", InstructionList{{ HELLO }}},
 	};
 	
 	//init custom commands
