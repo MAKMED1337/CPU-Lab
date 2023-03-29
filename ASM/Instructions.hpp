@@ -1,5 +1,5 @@
 #pragma once
-#include "../Processor.hpp"
+#include "../Hardware/Processor.hpp"
 #include "InstructionList.hpp"
 #include <string_view>
 #include <string>
@@ -17,7 +17,7 @@ namespace ASM {
 		std::size_t operator()(std::string const& str) const { return hash_type{}(str); }
 	};
 	
-	using enum Instruction;
+	using enum Hardware::Processor::Instruction;
 	inline std::unordered_map<std::string, InstructionList, string_hash, std::equal_to<>> translation = {
 		{"READ", InstructionList{{ READ }}},
 		{"WRITE", InstructionList{{ WRITE }}},

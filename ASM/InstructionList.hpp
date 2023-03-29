@@ -1,5 +1,5 @@
 #pragma once
-#include "../Processor.hpp"
+#include "../Hardware/Processor.hpp"
 #include <variant>
 #include <vector>
 #include <span>
