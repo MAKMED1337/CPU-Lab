@@ -145,12 +145,12 @@ namespace ASM {
 		}
 	}
 	
-	memory_t Compiler::compile() {
+	std::array<WORD, Hardware::CODE_SIZE> Compiler::compile() {
 		auto code = m_code;
 		preparse();
 		m_code = code;
 		
-		memory_t memory;
+		std::array<WORD, Hardware::CODE_SIZE> memory{};
 		memory.fill(0);
 		std::span<WORD> as_span(memory);
 		

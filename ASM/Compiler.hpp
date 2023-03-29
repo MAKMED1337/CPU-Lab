@@ -1,5 +1,5 @@
 #pragma once
-#include "../Processor.hpp"
+#include "../Hardware/Processor.hpp"
 #include "InstructionList.hpp"
 #include "ParseStream.hpp"
 #include "Instructions.hpp"
@@ -11,7 +11,6 @@
 #include <vector>
 
 namespace ASM {
-	using Hardware::memory_t;
 	class Compiler final {
 		ParseStream m_code;
 		std::unordered_map<std::string, WORD, string_hash, std::equal_to<>> labels;
@@ -42,6 +41,6 @@ namespace ASM {
 		Compiler(std::string_view code);
 		
 		//TODO: proper exception representation with lines/code samples
-		memory_t compile();
+		std::array<WORD, Hardware::CODE_SIZE> compile();
 	};
 }
