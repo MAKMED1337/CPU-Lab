@@ -1,6 +1,6 @@
 #include <iostream>
 #include "ASM/Compiler.hpp"
-#include "Processor.hpp"
+#include "Hardware/Processor.hpp"
 
 int main() {
 	ASM::init();
@@ -68,15 +68,6 @@ STOP
 	ASM::Compiler compiler(asm_code);
 	auto machine_code = compiler.compile();
 	
-	Hardware::Processor processor(std::move(machine_code));
-	
-	for (int i = 0; i < 10000 && !processor.complete(); ++i) {
-		processor.execute_step();
-		
-		auto io = processor.get_io();
-		if(io[0] != 0) {
-			std::cout << char(io[0]);
-			io[0] = 0;
-		}
-	}
+	Hardware::Computer computer(machine_code);
+	computer.run(10000);
 }
