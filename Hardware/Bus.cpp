@@ -14,19 +14,19 @@ namespace Hardware {
 	}
 	
 	IMemory& Bus::get_device(WORD& address) const {
-		if(CODE_OFFSET <= address && address < STACK_OFFSET) {
+		if(CODE_OFFSET <= address && address < CODE_OFFSET + CODE_SIZE) {
 			address -= CODE_OFFSET;
 			return m_code;
-		} else if(STACK_OFFSET <= address && address < RAM_OFFSET) {
+		} else if(STACK_OFFSET <= address && address < STACK_OFFSET + STACK_SIZE) {
 			address -= STACK_OFFSET;
 			return m_stack;
-		} else if(RAM_OFFSET <= address && address < IO_OFFSET) {
+		} else if(RAM_OFFSET <= address && address < RAM_OFFSET + RAM_SIZE) {
 			address -= RAM_OFFSET;
 			return m_ram;
-		} else if(IO_OFFSET <= address && address < DISPLAY_OFFSET) {
+		} else if(IO_OFFSET <= address && address < IO_OFFSET + IO_SIZE) {
 			address -= IO_OFFSET;
 			return m_IO;
-		} else if(DISPLAY_OFFSET <= address && address < MEMORY_SIZE) {
+		} else if(DISPLAY_OFFSET <= address && address < DISPLAY_OFFSET + DISPLAY_SIZE) {
 			address -= DISPLAY_OFFSET;
 			return m_display;
 		}
