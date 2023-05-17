@@ -52,13 +52,13 @@ namespace Hardware {
 		static constexpr WORD STOP = ~WORD{ 0 };
 		
 		MAKE_INSTRUCTIONS(
-			READ, A = bus().read(A),                     // A <- mem[A]
-			WRITE, bus().write(A, B),                    // mem[A] <- B
+			READ, A = bus().read(A),                            // A <- mem[A]
+			WRITE, bus().write(A, B),                           // mem[A] <- B
 			SWAP, std::swap(A, B),                              // A <-> B
 			SWAP_C, std::swap(A, C),                            // A <-> C
-			SET, A = bus().read(IP++),                   // A <- mem[IP + 1], IP = IP + 2
+			SET, A = bus().read(IP++),                          // A <- mem[IP + 1], IP = IP + 2
 			
-			JUMP_ZERO, IP = A ? IP + 1 : bus().read(IP), // if A == 0 then IP = argument
+			JUMP_ZERO, IP = A ? IP + 1 : bus().read(IP),        // if A == 0 then IP = argument
 			
 			READ_IP, A = IP,                                    // A <- IP + 1(next instruction address)
 			WRITE_IP, IP = A,                                   // IP <- A
