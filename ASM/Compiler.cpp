@@ -4,13 +4,15 @@
 #include <fmt/format.h>
 
 namespace ASM {
-	Compiler::Compiler(std::string_view code) : m_code(code) {}
+	Compiler::Compiler() {
+		m_memory.fill(0);
+	}
 	
 	bool Compiler::skip_ws() {
-		if (!std::isspace(m_code[0]))
+		if (!std::isspace(m_code.front()))
 			return false;
 		
-		while (!m_code.empty() && std::isspace(m_code[0]))
+		while (!m_code.empty() && std::isspace(m_code.front()))
 			m_code.remove_prefix(1);
 		return true;
 	}
@@ -36,14 +38,14 @@ namespace ASM {
 			throw std::invalid_argument("Expected argument");
 		
 		if (token.test(":")) {
-			auto it = labels.find(token);
-			if (it == labels.end())
+			auto it = m_labels.find(std::string_view {token});
+			if (it == m_labels.end())
 				throw std::invalid_argument(fmt::format("No such label as `:{}`", token));
 			return it->second;
 		}
 		
 		if (token.test("'")) {
-			char c = token.test("\\") ? escape_sequence(token[0]) : token[0];
+			char c = token.test("\\") ? escape_sequence(token.front()) : token.front();
 			token.remove_prefix(1);
 			token.expect("'");
 			return c;
@@ -130,11 +132,11 @@ namespace ASM {
 				break;
 			
 			if (token.test(":")) {
-				labels[std::string {token}] = offset;
+				m_labels[std::string{token}] = offset;
 				continue;
 			}
 			
-			auto it = translation.find(token);
+			auto it = translation.find(std::string_view {token});
 			if (it == translation.end())
 				throw std::logic_error(fmt::format("Expected token, got: `{}`", token));
 			
@@ -145,17 +147,16 @@ namespace ASM {
 		}
 	}
 	
-	std::array<WORD, Hardware::CODE_SIZE> Compiler::compile() {
-		auto code = m_code;
+	void Compiler::append(std::string_view code) {
+		m_code.set(code);
 		preparse();
-		m_code = code;
-		
-		std::array<WORD, Hardware::CODE_SIZE> memory{};
-		memory.fill(0);
-		std::span<WORD> as_span(memory);
-		
-		WORD offset = 0;
+		m_code.set(code);
+
+		std::span<WORD> as_span(m_memory);
 		while (true) {
+			skip();
+			CodeSegment segment{ m_code.offset() };
+
 			auto token = read_token();
 			if (token.empty())
 				break;
@@ -163,7 +164,7 @@ namespace ASM {
 			if (token.test(":"))
 				continue;
 			
-			auto it = translation.find(token);
+			auto it = translation.find(std::string_view{token});
 			if (it == translation.end())
 				throw std::logic_error(fmt::format("Expected token, got: `{}`", token));
 			
@@ -171,10 +172,17 @@ namespace ASM {
 			std::vector<WORD> args(instruction.get_args_count());
 			for(auto& i : args)
 				i = parse_argument(read_token());
-			offset += instruction.push_instructions(std::move(args), as_span.subspan(offset));
+
+			segment.to = m_code.offset();
+			segment.add_offset(m_code_offset);
+
+			WORD count = instruction.push_instructions(std::move(args), as_span.subspan(m_memory_offset));
+			for(WORD i = 0; i < count; ++i)
+				m_mapping[m_memory_offset + i] = segment;
+			m_memory_offset += count;
 		}
-		
-		return memory;
+
+		m_code_offset += code.size();
 	}
 	
 	ParseStream Compiler::read_token() {
@@ -186,5 +194,13 @@ namespace ASM {
 		auto res = m_code.substr(0, i);
 		m_code.remove_prefix(i);
 		return res;
+	}
+
+	std::array<WORD, Hardware::CODE_SIZE> const &Compiler::get_memory() const {
+		return m_memory;
+	}
+
+	std::array<CodeSegment, Hardware::CODE_SIZE> const &Compiler::get_mapping() const {
+		return m_mapping;
 	}
 }

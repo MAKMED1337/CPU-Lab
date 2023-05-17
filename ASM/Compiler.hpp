@@ -3,6 +3,7 @@
 #include "InstructionList.hpp"
 #include "ParseStream.hpp"
 #include "Instructions.hpp"
+#include "CodeSegment.hpp"
 #include <string_view>
 #include <string>
 #include <cassert>
@@ -13,8 +14,11 @@
 namespace ASM {
 	class Compiler final {
 		ParseStream m_code;
-		std::unordered_map<std::string, WORD, string_hash, std::equal_to<>> labels;
-		
+		std::unordered_map<std::string, WORD, string_hash, std::equal_to<>> m_labels;
+		std::array<WORD, Hardware::CODE_SIZE> m_memory;
+		std::array<CodeSegment, Hardware::CODE_SIZE> m_mapping; //instruction -> code(segment)
+		WORD m_code_offset = 0, m_memory_offset = 0;
+
 		bool skip_ws();
 		/* comment start with # and ends after new line, example:
 		   SET 1 #comment SET 42 <- still comment
@@ -38,9 +42,12 @@ namespace ASM {
 		// it parsing only labels rn, but in future can be used to parse more things
 		void preparse();
 	public:
-		Compiler(std::string_view code);
+		Compiler();
 		
 		//TODO: proper exception representation with lines/code samples
-		std::array<WORD, Hardware::CODE_SIZE> compile();
+		void append(std::string_view code);
+
+		std::array<WORD, Hardware::CODE_SIZE> const& get_memory() const;
+		std::array<CodeSegment, Hardware::CODE_SIZE> const& get_mapping() const;
 	};
 }
