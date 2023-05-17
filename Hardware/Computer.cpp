@@ -10,10 +10,10 @@ namespace Hardware {
 		}
 	}
 
-	void Computer::execute_step(std::array<CodeSegment, Hardware::CODE_SIZE> const& instructions_mapping) {
-		auto start_segment = instructions_mapping[processor->get_IP()];
+	void Computer::execute_step(std::function<CodeSegment(WORD)> const& mapping) {
+		auto start_segment = mapping(processor->get_IP());
 		while(!processor->complete()) {
-			auto segment = instructions_mapping[processor->get_IP()];
+			auto segment = mapping(processor->get_IP());
 			if (segment != start_segment)
 				break;
 			processor->execute_step();

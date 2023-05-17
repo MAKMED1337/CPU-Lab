@@ -23,6 +23,6 @@ namespace Hardware {
 		Computer(std::array<WORD, CODE_SIZE> OS);
 		
 		void execute(WORD limit);
-		void execute_step(std::array<CodeSegment, Hardware::CODE_SIZE> const& instructions_mapping);
+		void execute_step(std::function<CodeSegment(WORD)> const& mapping);
 	};
 }
