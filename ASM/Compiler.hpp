@@ -10,13 +10,14 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <map>
 
 namespace ASM {
 	class Compiler final {
 		ParseStream m_code;
 		std::unordered_map<std::string, WORD, string_hash, std::equal_to<>> m_labels;
 		std::array<WORD, Hardware::CODE_SIZE> m_memory;
-		std::array<CodeSegment, Hardware::CODE_SIZE> m_mapping; //instruction -> code(segment)
+		std::map<WORD, CodeSegment> m_mapping; //first instruction -> code(segment)
 		WORD m_code_offset = 0, m_memory_offset = 0;
 
 		bool skip_ws();
@@ -48,6 +49,6 @@ namespace ASM {
 		void append(std::string_view code);
 
 		std::array<WORD, Hardware::CODE_SIZE> const& get_memory() const;
-		std::array<CodeSegment, Hardware::CODE_SIZE> const& get_mapping() const;
+		CodeSegment get_mapping(WORD index) const;
 	};
 }

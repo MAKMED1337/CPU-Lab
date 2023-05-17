@@ -196,11 +196,11 @@ namespace ASM {
 		return res;
 	}
 
-	std::array<WORD, Hardware::CODE_SIZE> const &Compiler::get_memory() const {
+	std::array<WORD, Hardware::CODE_SIZE> const& Compiler::get_memory() const {
 		return m_memory;
 	}
 
-	std::array<CodeSegment, Hardware::CODE_SIZE> const &Compiler::get_mapping() const {
-		return m_mapping;
+	CodeSegment Compiler::get_mapping(WORD index) const {
+		return (--m_mapping.upper_bound(index))->second;
 	}
 }
