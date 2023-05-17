@@ -2,9 +2,12 @@
 #include <limits>
 #include <stdexcept>
 #include <fmt/format.h>
+#include <ranges>
+#include <utility>
 
+namespace ranges = std::ranges;
 namespace ASM {
-	Compiler::Compiler() {
+	Compiler::Compiler(std::shared_ptr<Loader> loader) : m_loader(std::move(loader)) {
 		m_memory.fill(0);
 	}
 	
@@ -123,16 +126,34 @@ namespace ASM {
 		throw std::invalid_argument(fmt::format("Expected digit, got: `{}`", c));
 	}
 	
-	void Compiler::preparse() {
-		WORD offset = 0;
-		
+	void Compiler::preprocess(size_t source_id) {
+		m_imported.insert(source_id);
+		m_to_compile.push_back(source_id);
+
+		m_code.set(m_loader->load(source_id));
+
+		std::vector<size_t> sources; //import them
 		while (true) {
 			auto token = read_token();
 			if (token.empty())
 				break;
 			
 			if (token.test(":")) {
-				m_labels[std::string{token}] = offset;
+				if(m_labels.contains(std::string_view{token}))
+					throw std::invalid_argument(fmt::format("Label `{}` already declared", token));
+
+				m_labels[std::string{token}] = m_offset;
+				continue;
+			}
+
+			if (token.test("import")) {
+				auto location = read_string();
+				auto id = m_loader->get_id(location);
+				if(!m_imported.contains(id)) {
+					m_imported.insert(id);
+					sources.push_back(id);
+					m_offset += translation["JUMP"].size();
+				}
 				continue;
 			}
 			
@@ -143,31 +164,39 @@ namespace ASM {
 			auto const& instruction = it->second;
 			for(size_t i = 0; i < instruction.get_args_count(); ++i)
 				read_token();
-			offset += instruction.size();
+			m_offset += instruction.size();
 		}
+
+		for(auto id : sources)
+			preprocess(id);
 	}
-	
-	void Compiler::add_source(Source source) {
-		m_code.set(source.code);
-		preparse();
-		m_code.set(source.code);
+
+	void Compiler::paste_source(size_t source_id) {
+		auto start = m_offset;
+
+		m_code.set(m_loader->load(source_id));
 
 		std::span<WORD> as_span(m_memory);
 		while (true) {
 			skip();
-			CodeSegment segment{ source.id, m_code.offset() };
+			CodeSegment segment{ source_id, m_code.offset() };
 
 			auto token = read_token();
 			if (token.empty())
 				break;
-			
+
 			if (token.test(":"))
 				continue;
-			
+
+			if(token.test("import")) {
+				read_string();
+				continue;
+			}
+
 			auto it = translation.find(std::string_view{token});
 			if (it == translation.end())
 				throw std::logic_error(fmt::format("Expected token, got: `{}`", token));
-			
+
 			auto const& instruction = it->second;
 			std::vector<WORD> args(instruction.get_args_count());
 			for(auto& i : args)
@@ -175,11 +204,38 @@ namespace ASM {
 
 			segment.to = m_code.offset();
 
-			WORD count = instruction.push_instructions(std::move(args), as_span.subspan(m_memory_offset));
-			for(WORD i = 0; i < count; ++i)
-				m_mapping[m_memory_offset + i] = segment;
-			m_memory_offset += count;
+			WORD count = instruction.push_instructions(std::move(args), as_span.subspan(m_offset));
+			m_mapping[m_offset] = segment;
+			m_offset += count;
 		}
+
+		fmt::print("Source({}) - [{}, {}) instructions\n", source_id, start, m_offset);
+	}
+
+	void Compiler::add_source(size_t source_id, bool execute) {
+		assert(!execute || !m_imported.contains(source_id)); //import or execute(not imported before)
+
+		if(m_imported.contains(source_id))
+			return;
+
+		auto offset = m_offset;
+		preprocess(source_id);
+		m_offset = offset;
+
+		std::span<WORD> as_span(m_memory);
+		for(auto id : m_to_compile) {
+			bool skip_source = id != source_id || !execute;
+			auto header_offset = m_offset;
+
+			if(skip_source)
+				m_offset += translation["JUMP"].size();
+
+			paste_source(id);
+
+			if (skip_source)
+				translation["JUMP"].push_instructions({m_offset}, as_span.subspan(header_offset));
+		}
+		m_to_compile.clear();
 	}
 	
 	ParseStream Compiler::read_token() {
@@ -199,5 +255,22 @@ namespace ASM {
 
 	CodeSegment Compiler::get_mapping(WORD index) const {
 		return (--m_mapping.upper_bound(index))->second;
+	}
+
+	std::string Compiler::read_string() {
+		skip();
+		m_code.expect("\"");
+
+		std::string res;
+		while (!m_code.empty()) {
+			bool escaped = m_code.test("\\");
+			if(!escaped && m_code.test("\""))
+				return res;
+
+			res += escaped ? escape_sequence(m_code.front()) : m_code.front();
+			m_code.remove_prefix(1);
+		}
+
+		throw std::invalid_argument("Unclosed string at the of the file");
 	}
 }
