@@ -4,6 +4,7 @@
 #include "ParseStream.hpp"
 #include "Instructions.hpp"
 #include "CodeSegment.hpp"
+#include "Source.hpp"
 #include <string_view>
 #include <string>
 #include <cassert>
@@ -18,7 +19,7 @@ namespace ASM {
 		std::unordered_map<std::string, WORD, string_hash, std::equal_to<>> m_labels;
 		std::array<WORD, Hardware::CODE_SIZE> m_memory;
 		std::map<WORD, CodeSegment> m_mapping; //first instruction -> code(segment)
-		WORD m_code_offset = 0, m_memory_offset = 0;
+		WORD m_memory_offset = 0;
 
 		bool skip_ws();
 		/* comment start with # and ends after new line, example:
@@ -46,7 +47,7 @@ namespace ASM {
 		Compiler();
 		
 		//TODO: proper exception representation with lines/code samples
-		void append(std::string_view code);
+		void add_source(Source source);
 
 		std::array<WORD, Hardware::CODE_SIZE> const& get_memory() const;
 		CodeSegment get_mapping(WORD index) const;

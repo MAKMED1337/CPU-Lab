@@ -2,8 +2,8 @@
 #include <fstream>
 #include <sstream>
 #include "ASM/Compiler.hpp"
+#include "ASM/Source.hpp"
 #include "Hardware/Processor.hpp"
-#include "Hardware/Memory.hpp"
 
 using Hardware::WORD;
 int main() {
@@ -15,12 +15,12 @@ int main() {
 	std::string code = buffer.str();
 	
 	ASM::Compiler compiler;
-	compiler.append(code);
+	compiler.add_source(ASM::Source{0, code});
 
 	Hardware::Computer computer(compiler.get_memory());
 
 	computer.execute_step([&](WORD index) { return compiler.get_mapping(index); });
 	auto segment = compiler.get_mapping(computer.processor->get_IP());
-	std::cerr << "ASM code: " << code.substr(segment.from, segment.to - segment.from) << "\n";
+	std::cerr << "ASM code(source_id = " << segment.source_id << "): " << code.substr(segment.from, segment.to - segment.from) << "\n";
 	//need to be second instruction, because first already done. (SET 42069)
 }

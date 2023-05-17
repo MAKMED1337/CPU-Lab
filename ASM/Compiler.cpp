@@ -147,15 +147,15 @@ namespace ASM {
 		}
 	}
 	
-	void Compiler::append(std::string_view code) {
-		m_code.set(code);
+	void Compiler::add_source(Source source) {
+		m_code.set(source.code);
 		preparse();
-		m_code.set(code);
+		m_code.set(source.code);
 
 		std::span<WORD> as_span(m_memory);
 		while (true) {
 			skip();
-			CodeSegment segment{ m_code.offset() };
+			CodeSegment segment{ source.id, m_code.offset() };
 
 			auto token = read_token();
 			if (token.empty())
@@ -174,15 +174,12 @@ namespace ASM {
 				i = parse_argument(read_token());
 
 			segment.to = m_code.offset();
-			segment.add_offset(m_code_offset);
 
 			WORD count = instruction.push_instructions(std::move(args), as_span.subspan(m_memory_offset));
 			for(WORD i = 0; i < count; ++i)
 				m_mapping[m_memory_offset + i] = segment;
 			m_memory_offset += count;
 		}
-
-		m_code_offset += code.size();
 	}
 	
 	ParseStream Compiler::read_token() {
