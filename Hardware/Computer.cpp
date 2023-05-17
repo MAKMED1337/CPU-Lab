@@ -1,9 +1,6 @@
 #include "Computer.hpp"
 
 namespace Hardware {
-	Computer::Computer(std::array<WORD, CODE_SIZE> OS) :
-		code(OS), bus(code, stack, ram, io, display), processor{new Processor{*this}} {}
-		
 	void Computer::execute(WORD limit) {
 		for (WORD i = 0; i < limit && !processor->complete(); ++i) {
 			processor->execute_step();
@@ -19,4 +16,10 @@ namespace Hardware {
 			processor->execute_step();
 		}
 	}
+
+	Computer::Computer(std::unique_ptr<IMemory> &&code, std::unique_ptr<IMemory> &&stack, std::unique_ptr<IMemory> &&ram,
+					   std::unique_ptr<IMemory> &&io, std::unique_ptr<IMemory> &&display) :
+		m_code(std::move(code)), m_stack(std::move(stack)), m_ram(std::move(ram)), m_io(std::move(io)),
+		m_display(std::move(display)),
+		bus(*m_code, *m_stack, *m_ram, *m_io, *m_display), processor{new Processor{*this}} {}
 }

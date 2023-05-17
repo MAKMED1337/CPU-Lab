@@ -18,6 +18,7 @@ namespace Hardware {
 	public:
 		virtual WORD read(WORD address) const = 0;
 		virtual void write(WORD address, WORD value) = 0;
+		virtual ~IMemory() = default;
 	};
 	
 	template<WORD size>
