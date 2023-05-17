@@ -56,6 +56,7 @@ namespace ASM {
 		void add_source(size_t source_id, bool execute = true);
 
 		std::array<WORD, Hardware::CODE_SIZE> const& get_memory() const;
+		WORD offset();
 		CodeSegment get_mapping(WORD index) const;
 	};
 }

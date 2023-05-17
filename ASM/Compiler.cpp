@@ -209,7 +209,7 @@ namespace ASM {
 			m_offset += count;
 		}
 
-		fmt::print("Source({}) - [{}, {}) instructions\n", source_id, start, m_offset);
+		fmt::print("Loaded source({}) - [{}, {}) instructions\n", source_id, start, m_offset);
 	}
 
 	void Compiler::add_source(size_t source_id, bool execute) {
@@ -272,5 +272,9 @@ namespace ASM {
 		}
 
 		throw std::invalid_argument("Unclosed string at the of the file");
+	}
+
+	WORD Compiler::offset() {
+		return m_offset;
 	}
 }
