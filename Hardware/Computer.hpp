@@ -6,8 +6,10 @@
 #include "Display.hpp"
 #include "Bus.hpp"
 #include "Processor.hpp"
+#include "../ASM/CodeSegment.hpp"
 
 namespace Hardware {
+	using ASM::CodeSegment;
 	class Processor;
 	class Computer final {
 		Code code;
@@ -15,13 +17,12 @@ namespace Hardware {
 		RAM ram;
 		IO io;
 		Display display;
-		
-		std::unique_ptr<Processor> processor;
 	public:
 		Bus bus;
 		std::unique_ptr<Processor> processor;
 		Computer(std::array<WORD, CODE_SIZE> OS);
 		
-		void run(WORD limit);
+		void execute(WORD limit);
+		void execute_step(std::array<CodeSegment, Hardware::CODE_SIZE> const& instructions_mapping);
 	};
 }
