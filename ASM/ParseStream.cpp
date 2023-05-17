@@ -7,11 +7,10 @@ TokenException::TokenException(const std::string& expected, const std::string& g
 {}
 
 
-
-ParseStream::ParseStream(std::string_view s) : std::string_view(s) {}
+ParseStream::ParseStream(std::string_view s) : m_string(s) {}
 
 bool ParseStream::test(std::string_view s) {
-	if(starts_with(s)) {
+	if(m_string.starts_with(s)) {
 		remove_prefix(s.size());
 		return true;
 	}
@@ -58,10 +57,6 @@ ParseStream ParseStream::substr(size_t pos, size_t n) const {
 
 size_t ParseStream::size() const {
 	return m_string.size();
-}
-
-ParseStream::ParseStream(std::string_view s) {
-	m_string = s;
 }
 
 size_t ParseStream::offset() const {
