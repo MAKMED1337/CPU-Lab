@@ -19,6 +19,7 @@ namespace Hardware {
 		std::unique_ptr<Processor> processor;
 	public:
 		Bus bus;
+		std::unique_ptr<Processor> processor;
 		Computer(std::array<WORD, CODE_SIZE> OS);
 		
 		void run(WORD limit);
