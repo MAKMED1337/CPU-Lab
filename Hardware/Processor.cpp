@@ -27,4 +27,8 @@ void Processor::dump_registers(std::ostream& os) const {
 	bool Processor::complete() const {
 		return IP == STOP;
 	}
+
+	WORD Processor::get_IP() const {
+		return  IP;
+	}
 };

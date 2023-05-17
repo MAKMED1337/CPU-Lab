@@ -44,10 +44,10 @@ namespace Hardware {
 		
 		//To avoid incomplete type error
 		Bus& bus();
-	public:
+
 		//registers SP(STACK POINTER), IP(INSTRUCTION POINTER), A, B, C
 		WORD IP = 0, SP = STACK_OFFSET, A = 0, B = 0, C = 0;
-		
+	public:
 		//To stop, set IP to STOP
 		static constexpr WORD STOP = ~WORD{ 0 };
 		
@@ -86,7 +86,8 @@ namespace Hardware {
 		Processor(Computer& computer) : m_computer(computer) {}
 		
 		bool complete() const;
-		
+		WORD get_IP() const;
+
 		void dump_registers(std::ostream& os) const;
 		void dump_stack(std::ostream& os) const;
 		void dump(std::ostream& os) const;
