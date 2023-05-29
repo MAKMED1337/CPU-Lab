@@ -16,6 +16,7 @@ namespace ASM {
 		INSTR(COPY_A, { SWAP,COPY_B }) //B <- A
 		
 		INSTR(PRINT, { SET, Hardware::IO_OFFSET, WRITE }) //A
+		INSTR(INPUT, { SET, Hardware::IO_OFFSET + 1, READ }) //A
 		
 		INSTR(READ_RAM, { ADD, Hardware::RAM_OFFSET, READ }) //A, 0 indexed ram
 		INSTR(WRITE_RAM, { ADD, Hardware::RAM_OFFSET, WRITE }) //A, 0 indexed ram

@@ -6,6 +6,11 @@
 
 namespace Hardware {
 	WORD IO::read(WORD address) const {
+		if (address == 1) {
+			char c;
+			std::cin >> c;
+			return c;
+		}
 		throw std::invalid_argument(fmt::format("IO address(relative) {} is unreadable", address));
 	}
 	
