@@ -6,14 +6,14 @@ namespace ASM {
 #define INSTR(name, args...) INTERNAL(name, args) translation[#name] = name;
 		INSTR(SAVE_B, { SWAP, SWAP_C }) //A, C
 		INSTR(LOAD_B, { SWAP_C, SWAP }) //A, C
-		INSTR(SWAP_BC, { SWAP, SWAP_C, SWAP })  //A <-> B
+		INSTR(SWAP_BC, { SWAP, SWAP_C, SWAP })  //B <-> C
 		
 		INSTR(JUMP, { SET, Arg{0}, WRITE_IP }, 1) //A
 		INSTR(JUMP_NOT_ZERO, { LNOT, JUMP_ZERO, Arg{0} }, 1) //A
 		
 		INSTR(STOP, { SET, Hardware::Processor::STOP, WRITE_IP })
 		INSTR(COPY_B, { SET, WORD{0}, ADD }) //A <- B
-		INSTR(COPY_A, { SWAP,COPY_B }) //B <- A
+		INSTR(COPY_A, { SWAP, COPY_B }) //B <- A
 		
 		INSTR(PRINT, { SET, Hardware::IO_OFFSET, WRITE }) //A
 		INSTR(INPUT, { SET, Hardware::IO_OFFSET + 1, READ }) //A
